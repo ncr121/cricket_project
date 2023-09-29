@@ -7,9 +7,6 @@ from functions import rvg
 from classes import MatchMethods
 from inning import Inning
 
-# declaration, night watchman
-# Inning._next_bowler(), Player.load_freqs(), Squad.starting
-
 
 class Match(MatchMethods):
     def __init__(self, index, teams, pdb):
