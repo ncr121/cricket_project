@@ -1,3 +1,9 @@
+"""
+This module contains classes that represent real players, teams and matches.
+Many of the class methods and atrributes are inherited from classes from
+other modules.
+"""
+
 from operator import itemgetter
 
 from classes import MatchMethods
@@ -36,6 +42,22 @@ style_map = {'Batting': {'Left hand Bat': 'LH', 'Right hand Bat': 'RH', None: No
 
 class RealPlayer(Player):
     def __init__(self, name, identifier):
+        """
+        Initiliase player object with identifier from crichseet.org and 
+        attributes from cricinfo.
+
+        Parameters
+        ----------
+        name : str
+            player name.
+        identifier : str
+            unique player identifier.
+
+        Returns
+        -------
+        None.
+
+        """
         self.info = get_player_info(name, identifier)
         role = self.info.get('Playing Role')
         styles = [style_map[key][self.info.get(key + ' Style')] for key in ('Batting', 'Bowling')]
@@ -45,10 +67,37 @@ class RealPlayer(Player):
 
 class RealSquad(Squad):
     def __init__(self, team):
+        """
+        Initialise team.
+
+        Parameters
+        ----------
+        team : str
+            team name.
+
+        Returns
+        -------
+        None.
+
+        """
         self.team = team
         self.players = {}
 
     def starting(self, match_info):
+        """
+        
+
+        Parameters
+        ----------
+        match_info : dict
+            dictionary containing player information for a match.
+
+        Returns
+        -------
+        tuple
+            list of players who played in the match.
+
+        """
         names = match_info['players'][self.team]
         for name in names:
             if name not in self.players:
@@ -59,6 +108,22 @@ class RealSquad(Squad):
 
 class RealMatch(MatchMethods):
     def __init__(self, fname, pdb):
+        """
+        Initialise match from stored database containing data from
+        cricsheet.org.
+
+        Parameters
+        ----------
+        fname : str
+            filename of match.
+        pdb : dict
+            player database.
+
+        Returns
+        -------
+        None.
+
+        """
         self.data = load_match(fname)
         info = self.data['info']
 
@@ -70,6 +135,23 @@ class RealMatch(MatchMethods):
         print(index, self._get_event(), info['dates'][0])
 
     def run(self, pdb, index=(None,)*3):
+        """
+        Run match by feeding the actual data, hence replicating scorecards and
+        statistics from the match.
+
+        Parameters
+        ----------
+        pdb : TYPE
+            player database.
+        index : tuple, optional
+            Stopping points for number of innings, overs and balls
+            respectively. The default is (None,)*3.
+
+        Returns
+        -------
+        None.
+
+        """
         for data in self.data['innings'][:index[0]]:
             self._run_inning(data, self)
 
@@ -80,10 +162,36 @@ class RealMatch(MatchMethods):
             pdb[team] = squad
 
     def _run_inning(self, data, mat, index=(None,)*2):
+        """
+        Run match by feeding the actual data, hence replicating scorecards and
+        statistics from the inning. 
+
+        Parameters
+        ----------
+        data : dict
+            innings data.
+        index : TYPE, optional
+            Stopping points for number of overs and balls respectively.
+            The default is (None,)*2.
+
+        Returns
+        -------
+        None.
+
+        """
         self.innings.append(RealInning(data, mat))
         self[-1].run(self, index)
 
     def _get_event(self):
+        """
+        Get the match series and index of the match.
+
+        Returns
+        -------
+        str
+            series and match description.
+
+        """
         try:
             event = self.data['info']['event']
             index = event.get('match_number')
