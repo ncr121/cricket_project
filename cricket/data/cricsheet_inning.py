@@ -1,3 +1,10 @@
+"""
+This module contains classes that contribute to representing a real inning from
+a match. Many of the class methods and atrributes are inherited from classes
+fromother modules.
+"""
+
+
 import numpy as np
 from copy import deepcopy
 from operator import attrgetter, itemgetter
@@ -9,11 +16,41 @@ from inning import Over, Ball
 
 class RealInning(InningMethods):
     def __init__(self, data, mat):
+        """
+        Initialise inning from actual data from cricsheet.
+
+        Parameters
+        ----------
+        data : dict
+            innings data.
+        mat : RealMatch
+            associated match object.
+
+        Returns
+        -------
+        None.
+
+        """
         batting_idx = mat.teams.index(data['team'])
         super().__init__(mat, batting_idx)
         self.data = data
 
     def run(self, mat, index=(None,)*2):
+        """
+        Iterate through innings data to replicate inning statistics.
+
+        Parameters
+        ----------
+        mat : RealMatch
+            match object.
+        index : tuple, optional
+            Stopping points for overs and balls respectively. The default is (None,)*2.
+
+        Returns
+        -------
+        None.
+
+        """
         pship = np.zeros((3, 2), int)
 
         if 'pre' in self.data.get('penalty_runs', {}):
@@ -38,6 +75,25 @@ class RealInning(InningMethods):
             self[-1][-1].score += 'd'
 
     def _run_over(self, data, pship, mat, index=None):
+        """
+        Iterate through over data.
+
+        Parameters
+        ----------
+        data : dict
+            over data.
+        pship : np.array
+            counter to keep track of current partnership.
+        mat : RealMatch
+            match object.
+        index : int, optional
+            Number of balls to run. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
         bowler = self._get_bowler(data['deliveries'][0]['bowler'], mat)
         self.overs.append(Over(bowler, self))
 
@@ -45,6 +101,23 @@ class RealInning(InningMethods):
             self._run_ball(ball_data, pship, mat)
 
     def _run_ball(self, data, pship, mat):
+        """
+        Update inning ball-by-ball.
+
+        Parameters
+        ----------
+        data : dict
+            ball data.
+        pship : np.array
+            counter to keep track of current partnership.
+        mat : RealMatch
+            match object.
+
+        Returns
+        -------
+        None.
+
+        """
         if 'replacements' in data:
             for replacement_data in data['replacements'].get('role', []):
                 if replacement_data['role'] == 'batter':
@@ -63,18 +136,67 @@ class RealInning(InningMethods):
         super().update(at_crease, striker, bowler, pship, mat)
 
     def _get_batter(self, name, mat):
+        """
+        Get `Batter` object for corresponding batter name.
+
+        Parameters
+        ----------
+        name : str
+            batter name.
+        mat : RealMatch
+            match object.
+
+        Returns
+        -------
+        Batter
+            Batter object.
+
+        """
         try:
             return self.batters[name]
         except ValueError:
             return super().new_batter(mat.players[self.batting_team][name], mat)
 
     def _get_bowler(self, name, mat):
+        """
+        Get `Bowler` object for corresponding bowler name.
+
+        Parameters
+        ----------
+        name : str
+            bowler name.
+        mat : RealMatch
+            match object.
+
+        Returns
+        -------
+        Bowler
+            Bowler object.
+
+        """
         try:
             return self.bowlers[name]
         except ValueError:
             return super().new_bowler(mat.players[self.bowling_team][name], mat)
 
     def _get_dismissal(self, bowler, pship, match_idx, *_):
+        """
+        Assign dismissal type from description.
+
+        Parameters
+        ----------
+        bowler : Bowler
+            Bowler object.
+        pship : np.array
+            counter to keep track of current partnership.
+        match_idx : int
+            match identifier.
+
+        Returns
+        -------
+        None.
+
+        """
         ball = self[-1][-1]
         for wicket_data in ball.data['wickets']:
             out, mode = itemgetter('player_out', 'kind')(wicket_data)
@@ -88,10 +210,45 @@ class RealInning(InningMethods):
 
 class RealBall(Ball):
     def __init__(self, data, at_crease, striker, pship, inn):
+        """
+        Initialise atrributes for each ball.
+
+        Parameters
+        ----------
+        data : dict
+            ball data.
+        at_crease : list
+            current batters.
+        striker : int
+            index of current batter on strike.
+        pship : np.array
+            counter to keep track of current partnership.
+        inn : RealInning
+            associated inning object.
+
+        Returns
+        -------
+        None.
+
+        """
         self.data = data
         super().__init__(self._get_value(), at_crease, striker, pship, inn)
 
     def _get_value(self):
+        """
+        Return the number of runs scored by the batting team for each ball.
+
+        Raises
+        ------
+        ValueError
+            Unseen description type.
+
+        Returns
+        -------
+        int
+            Number of runs for that ball.
+
+        """
         if 'wickets' in self.data:
             if self.data['wickets'][0]['kind'] == 'run out':
                 return '{}+W'.format(int(self))
