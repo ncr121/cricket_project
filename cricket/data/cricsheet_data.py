@@ -1,3 +1,7 @@
+"""
+This module updates stored shelve files with data from new matches.
+"""
+
 import shelve
 import pandas as pd
 from collections import Counter, defaultdict
@@ -9,6 +13,34 @@ from cricsheet_match import RealSquad, RealMatch
 
 
 def get_matches(pdb_name=None, mdb_name=None, fnames=None, start_date=None, end_date=None, all_teams=None):
+    """
+    Updates databases with new players and matches.
+
+    Parameters
+    ----------
+    pdb_name : str, optional
+        name of players database. The default is None.
+    mdb_name : str, optional
+        name of matches database. The default is None.
+    fnames : TYPE, optional
+        List of matches to read. The default is None.
+    start_date : TYPE, optional
+        Lower bound for start date of match. The default is None.
+    end_date : TYPE, optional
+        Upper bound for start date of match. The default is None.
+    all_teams : list, optional
+        List of whitelisted teams. The default is None.
+
+    Returns
+    -------
+    str
+        if there is an error, likely because of an unseen event,
+        returns filename that caused the error.
+
+    dicts
+        updated player and matches database.
+
+    """
     if all_teams == 'main':
         all_teams = {'Australia', 'Bangladesh', 'England', 'India', 'New Zealand', 'Pakistan', 'Sri Lanka',
                      'South Africa', 'West Indies'}
@@ -40,6 +72,24 @@ def get_matches(pdb_name=None, mdb_name=None, fnames=None, start_date=None, end_
 
 
 def get_freqs(pdb, mdb, fdb_name):
+    """
+    Update stored frequencies from new matches.
+
+    Parameters
+    ----------
+    pdb : dict
+        player databse.
+    mdb : dict
+        matches database.
+    fdb_name : TYPE
+        frequencey databse name.
+
+    Returns
+    -------
+    freqs : TYPE
+        DESCRIPTION.
+
+    """
     freqs = [{**{k: defaultdict(Counter) for k in ('batting', 'bowling', 'style', 'dismissals')},
               **{k: Counter() for k in ('overs', 'catches', 'run_outs')},
               **{k1: {k2: defaultdict(Counter) for k2 in 'FS'} for k1 in ('bowling', 'extras')}}
