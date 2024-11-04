@@ -1,3 +1,12 @@
+"""
+This module contains functions to download ball-by-ball data and player names
+and identifiers from cricsheet.org.
+
+It also contains functions to load this data from downloaded files, filter
+matches based on start date and teams, and finally to retrieve player
+atrributes from cricinfo.
+"""
+
 import json
 import os
 import requests
@@ -12,11 +21,35 @@ names = pd.read_csv('names.csv', index_col=0).squeeze('columns')
 
 
 def download(url, file):
+    """
+    Download a file, for example .csv, .zip etc, from a specified url.
+
+    Parameters
+    ----------
+    url : str
+        url to download file from.
+    file : str
+        filename to save as.
+
+    Returns
+    -------
+    None.
+
+    """
     with open(file, 'wb') as f:
         f.write(requests.get(url).content)
 
 
 def download_data():
+    """
+    Download most recent versions of test match and individual data stored from
+    cricsheet.org.
+
+    Returns
+    -------
+    None.
+
+    """
     for csv_name in ('people.csv', 'names.csv'):
         download('https://cricsheet.org/register/' + csv_name, csv_name)
 
@@ -29,6 +62,25 @@ def download_data():
 
 
 def get_filenames(all_teams=None, start_date=None, end_date=None):
+    """
+    Select matches only if they fall in a specified timeframe or if they are
+    played between two whitelisted teams.
+
+    Parameters
+    ----------
+    all_teams : list, optional
+        List of whitelisted teams. The default is None.
+    start_date : str, optional
+        Lower bound for start of a match. The default is None.
+    end_date : str, optional
+        Upper bound for start of a match. The default is None.
+
+    Yields
+    ------
+    str
+        filename of match.
+
+    """
     if start_date is None:
         start_date = '2000-01-01'
 
@@ -50,10 +102,39 @@ def get_filenames(all_teams=None, start_date=None, end_date=None):
 
 
 def load_match(fname):
+    """
+    Load match data from a .json file.
+
+    Parameters
+    ----------
+    fname : str
+        filename of match.
+
+    Returns
+    -------
+    dict
+        dictionary format of .json file.
+
+    """
     return json.load(open(os.path.join(os.getcwd(), 'tests_json', fname)))
 
 
 def get_new_player_info(identifier):
+    """
+    Load new player information from cricinfo, if `identifier` has not been
+    seen before.
+
+    Parameters
+    ----------
+    identifier : str
+        unique identifer of player.
+
+    Returns
+    -------
+    dict
+        attributes of players's role and style.
+
+    """
     full_name = names[names.index == identifier][0]
     key = int(people[people.index == identifier][0])
     url = 'https://www.espncricinfo.com/player/' + full_name.replace(' ', '-') + '-' + str(key)
@@ -66,6 +147,23 @@ def get_new_player_info(identifier):
 
 
 def get_player_info(name, identifier):
+    """
+    Load player information from stored shelved if `identifier` has been seen
+    before, else retreive this information from cricinfo.
+
+    Parameters
+    ----------
+    name : str
+        player name.
+    identifier : str
+        unique identifer of player.
+
+    Returns
+    -------
+    dict
+        attribute of player's role and style.
+
+    """
     db = shelve.open('cricinfo')
     if identifier not in db:
         print('New Player:', name)
