@@ -6,7 +6,7 @@ Uses ball-by-ball data from cricsheet.org to obtain the frequency of outcomes (r
 
 # Data
 
-The model was developed to simulate matches using ball-by-ball data from cricsheet.org, which has a database of matches since 2003. Currently only test matche data is considered, but this model could be easily adapted for limited overs.
+The model was developed to simulate matches using ball-by-ball data from cricsheet.org, which has a database of matches since 2003. Currently only test match data is considered, but this model could be easily adapted for limited overs.
 
 For simulating a match, there are different features for any given ball in the match that will change as the match progresses. For example: the position of the batter in the order, LH vs RH, pace vs spin, number of of overs in the inning, number of overs in the match, historical and match stats of the batter and bowler. 
 
