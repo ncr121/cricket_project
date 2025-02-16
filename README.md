@@ -14,6 +14,6 @@ If for example it is the the 15th over in an inning and a right arm fast bowler 
 
 Once all feature vectors have been retrieved from historical frequencies, the probability distribution for that ball is computed using weights, which assign relative  importance to each feature. This final vector is then sampled from once to get an outcome for that ball. 
 
-Currently the weights have been manually calibrated to ensure the overall predicted scores are close to actual match results. These weights could be optimised using ML techniques such as by defining a loss function and training the weights using gradient descent.
+Currently the weights have been manually calibrated to ensure the overall predicted scores are close to actual match results. There are future plans to extend this frameowrk to optimise the weights by using RNNs.
 
 In order to get these frequency vectors in the first place, for every ball in every match in the database a label was assigned for each feature (e.g. batter position, over in inning etc).
