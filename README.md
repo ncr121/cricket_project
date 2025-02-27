@@ -17,3 +17,11 @@ Once all feature vectors have been retrieved from historical frequencies, the pr
 Currently the weights have been manually calibrated to ensure the overall predicted scores are close to actual match results. There are future plans to extend this frameowrk to optimise the weights by using RNNs.
 
 In order to get these frequency vectors in the first place, for every ball in every match in the database a label was assigned for each feature (e.g. batter position, over in inning etc).
+
+# Viewing the code
+
+All code is inside the _cricket_ folder. 
+
+The scripts _classes.py_, _match.py_ and _inning.py_ are the main framework to simulate, record and display match and inning statistics.
+
+The _data_ folder includes scripts that modify this framework to store frequency vectors from existing matches, as well as reading in the ball-by-ball data.
